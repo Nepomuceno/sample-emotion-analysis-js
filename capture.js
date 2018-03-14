@@ -21,9 +21,36 @@ window.sourceImageUrl = "";
   var startbutton = null;
   var file = null;
   var data = null;
+  var captureSeconds = [3, 26, 27, 28, 107, 108, 109];
+  captureSeconds.sort((a, b) => a - b);
+  var results = [];
 
   function startup() {
     video = document.getElementById('video');
+    videof1 = document.getElementById('videof1');
+    videof1.addEventListener('timeupdate', function (ev) {
+      let currentSecond = Math.ceil(ev.srcElement.currentTime);
+      console.log(currentSecond);
+      let index = captureSeconds.findIndex(n => n == currentSecond);
+      if (index > -1) {
+        console.log("capturing");
+        captureSeconds.shift();
+        takepicture(currentSecond);
+      }
+    });
+    videof1.addEventListener('ended', function (ev) {
+      if (results) {
+        generateFile(results);
+        showResult()
+      }
+    });
+    videof1.addEventListener('pause', function (ev) {
+      if (results) {
+        generateFile(results);
+        showResult()
+      }
+    });
+
     canvas = document.getElementById('canvas');
     startbutton = document.getElementById('startbutton');
 
@@ -51,6 +78,7 @@ window.sourceImageUrl = "";
       }
     );
 
+
     video.addEventListener('canplay', function (ev) {
       if (!streaming) {
         height = video.videoHeight / (video.videoWidth / width);
@@ -67,26 +95,11 @@ window.sourceImageUrl = "";
         canvas.setAttribute('width', width);
         canvas.setAttribute('height', height);
         streaming = true;
-        setInterval(takepicture,1000);
       }
     }, false);
 
-    startbutton.addEventListener('click', function (ev) {
-      takepicture();
-      ev.preventDefault();
-    }, false);
-
-    clearphoto();
   }
 
-  // Fill the photo with an indication that none has been
-  // captured.
-
-  function clearphoto() {
-    var context = canvas.getContext('2d');
-    context.fillStyle = "#AAA";
-    context.fillRect(0, 0, canvas.width, canvas.height);
-  }
 
   // Capture a photo by fetching the current contents of the video
   // and drawing it into a canvas, then converting that to a PNG
@@ -94,32 +107,21 @@ window.sourceImageUrl = "";
   // drawing that to the screen, we can change its size and/or apply
   // other changes before drawing it.
 
-  function takepicture() {
+  function takepicture(second) {
     var context = canvas.getContext('2d');
-    if (width && height) {
-      canvas.width = width;
-      canvas.height = height;
-      context.drawImage(video, 0, 0, width, height);
-      var data = canvas.toDataURL('image/png');
-      var blobBin = atob(data.split(',')[1]);
-      var array = [];
-      for (var i = 0; i < blobBin.length; i++) {
-        array.push(blobBin.charCodeAt(i));
-      }
-      file = new Blob([new Uint8Array(array)], { type: 'image/png' });
-      getData()
-    } else {
-      clearphoto();
+    context.drawImage(video, 0, 0, width, height);
+    var data = canvas.toDataURL('image/png');
+    var blobBin = atob(data.split(',')[1]);
+    var array = [];
+    for (var i = 0; i < blobBin.length; i++) {
+      array.push(blobBin.charCodeAt(i));
     }
+    file = new Blob([new Uint8Array(array)], { type: 'image/png' });
+    getData(second)
   }
-  function getData() {
+  function getData(second) {
     var uriBase = "https://" + env.face_location + ".api.cognitive.microsoft.com/face/v1.0/detect";
     // Request parameters.
-    var params = {
-      "returnFaceId": "true",
-      "returnFaceLandmarks": "true",
-      "returnFaceAttributes": "age,gender,headPose,smile,facialHair,glasses,emotion,hair,makeup,occlusion,accessories,blur,exposure,noise",
-    };
     var params = "returnFaceId=true&returnFaceLandmarks=true&returnFaceAttributes=age%2Cgender%2CheadPose%2Csmile%2CfacialHair%2Cglasses%2Cemotion%2Chair%2Cmakeup%2Cocclusion%2Caccessories%2Cblur%2Cexposure%2Cnoise"
     var url = uriBase + "?" + params;
 
@@ -135,6 +137,9 @@ window.sourceImageUrl = "";
           // console.log(JSON.stringify(content, null, 2));
           content.forEach(face => {
             renderChart(face.faceAttributes.emotion);
+            var frame = face.faceAttributes.emotion;
+            frame.second = second;
+            results.push(frame);
           });
         } else {
           console.log('There was a problem with the request.');
@@ -143,114 +148,33 @@ window.sourceImageUrl = "";
     }
     httpRequest.send(file);
   }
-  var count = 1;
-  function renderChart(emotion) {
-    count++;
-    dps.forEach(dp => {
-      console.log(dp.name.toLowerCase() + ": " + emotion[dp.name.toLowerCase()]);
-      dp.dataPoints.push(
-        {
-          x: count,
-          y: emotion[dp.name.toLowerCase()]
-        }
-      )
-      if(dp.dataPoints.length > dataLength)
-      {
-        dp.dataPoints.shift();
-      }
+  var showResult = function () {
+    var resultContainer = document.getElementById("result");
+    let happiness = 0;
+    let sadness = 0;
+    let neutral = 0;
+    let disgust = 0;
+    let anger = 0;
+    results.forEach(r => {
+      happiness += r.happiness;
+      sadness += r.sadness;
+      neutral += r.neutral;
+      disgust += r.disgust;
+      anger += r.anger;
     });
-    chart.render();
+    let sentence = 'Inconclusive';
+    if (happiness / results.length > 0.35) {
+      sentence = 'You like crashes'
+    } else if (sadness / results.length > 0.35) {
+      sentence = 'You dont like crashes';
+    } else if (disgust / results.length > 0.35) {
+      sentence = 'You hate crashes'
+    } else if (anger / results.length > 0.35) {
+      sentence = 'Crashes make you anger';
+    }
+    resultContainer.textContent = sentence;
+    console.log(sentence);
   }
-  var dps = [{
-    type: "stackedColumn100",
-    name: "Anger",
-    color: "#A61103",
-    showInLegend: true,
-    dataPoints: [
-    ]
-  },
-  {
-    type: "stackedColumn100",
-    name: "Contempt",
-    showInLegend: true,
-    color: "#A4A9FF",
-    dataPoints: [
-    ]
-  },
-  {
-    type: "stackedColumn100",
-    name: "Disgust",
-    showInLegend: true,
-    color: "#4E2596",
-    dataPoints: [
-    ]
-  },
-  {
-    type: "stackedColumn100",
-    name: "Fear",
-    showInLegend: true,
-    color: "#F2B705",
-    dataPoints: [
-    ]
-  },
-  {
-    type: "stackedColumn100",
-    name: "Happiness",
-    showInLegend: true,
-    color: "#067302",
-    dataPoints: [
-    ]
-  },
-  {
-    type: "stackedColumn100",
-    name: "Neutral",
-    showInLegend: true,
-    color: "#F2F2F2",
-    dataPoints: [
-    ]
-  },
-  {
-    type: "stackedColumn100",
-    name: "Sadness",
-    showInLegend: true,
-    color: "#1F1E1E",
-    dataPoints: [
-    ]
-  },
-  {
-    type: "stackedColumn100",
-    name: "Surprise",
-    showInLegend: true,
-    color: "#F06E09",
-    dataPoints: [
-    ]
-  }];
-  var dataLength = 30; // number of dataPoints visible at any point
-  var chart = new CanvasJS.Chart("chartContainer", {
-    title: {
-      text: "Dynamic Data"
-    },
-    axisX: {
-      interval: 1,
-      intervalType: "seconds"
-    },
-    axisY: {
-      suffix: "%"
-    },
-    toolTip: {
-      shared: true
-    },
-    legend: {
-      reversed: true,
-      verticalAlign: "center",
-      horizontalAlign: "right"
-    },
-    data: dps
-  });
-  chart.render();
-  console.log(chart);
 
-  // Set up our event listener to run the startup process
-  // once loading is complete.
   window.addEventListener('load', startup, false);
 })();

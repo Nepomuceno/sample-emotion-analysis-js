@@ -11,16 +11,16 @@
 
 <body>
     <div class="contentarea">
-
+        <div class="displayVideo">
+            <video id="videof1" width="640" controls autoplay>
+                    <source src="f1.mp4" type="video/mp4">
+            </video>
+        </div>
         <div class="camera">
-            <video id="video">Video stream not available.</video>
-            <button id="startbutton">Take photo</button>
+            <video id="video" style="display: none">Video stream not available.</video>
         </div>
-        <canvas id="canvas">
+        <canvas id="canvas" style="display: none">
         </canvas>
-        <div class="output">
-            <img id="photo" alt="The screen capture will appear in this box.">
-        </div>
         <div class="cognitive">
             <div id="response">
                 <span id="anger"></span>
@@ -33,12 +33,17 @@
                 <span id="surprise"></span>
             </div>
         </div>
-        <div id="chartContainer">
+        <div id="chartContainer" style="display: none">
             
         </div>
+        <h1 id="result"></h1>
+        <div id="gougeChart" style="display: none">
+            
+            </div>
     </div>
-
-    <script src="capture.js"></script>
+    <script src="chart.js?v=1"></script>
+    <script src="csv.js?v=1"></script>
+    <script src="capture.js?v=1"></script>
 
     
 
