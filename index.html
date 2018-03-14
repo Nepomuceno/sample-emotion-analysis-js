@@ -5,15 +5,23 @@
     <meta charset="utf-8">
     <title>tracking.js - face with camera</title>
     <link rel="stylesheet" href="sample.css">
+    <link rel="stylesheet" href="w3.css">
     <script src="env.js"></script>
     <script src="canvasjs.min.js"></script>
+    <script src="raphael-2.1.4.min.js"></script>
+    <script src="justgage.js"></script>
+    <!-- c3js -->
+    <link href="c3.min.css" rel="stylesheet">
+    <script src="d3.min.js" charset="utf-8"></script>
+    <script src="c3.js"></script>
+
 </head>
 
 <body>
     <div class="contentarea">
         <div class="displayVideo">
             <video id="videof1" width="640" controls autoplay>
-                    <source src="f1.mp4" type="video/mp4">
+                <source src="f1.mp4" type="video/mp4">
             </video>
         </div>
         <div class="camera">
@@ -21,31 +29,80 @@
         </div>
         <canvas id="canvas" style="display: none">
         </canvas>
-        <div class="cognitive">
-            <div id="response">
-                <span id="anger"></span>
-                <span id="contempt"></span>
-                <span id="disgust"></span>
-                <span id="fear"></span>
-                <span id="happiness"></span>
-                <span id="neutral"></span>
-                <span id="sadness"></span>
-                <span id="surprise"></span>
-            </div>
-        </div>
         <div id="chartContainer" style="display: none">
-            
-        </div>
-        <h1 id="result"></h1>
-        <div id="gougeChart" style="display: none">
-            
-            </div>
-    </div>
-    <script src="chart.js?v=1"></script>
-    <script src="csv.js?v=1"></script>
-    <script src="capture.js?v=1"></script>
 
-    
+        </div>
+        <div class="w3-container">
+            <h1 id="result"></h1>
+            <div id="gougeChart" class="w3-theme w3-cell-row">
+                <div class="w3-card-4 w3-cell">
+                    <div class="w3-container">
+                        <div id="happiness"></div>
+                    </div>
+                    <footer class="w3-container w3-center w3-green">
+                        <h5>Happiness</h5>
+                    </footer>
+                </div>
+                <div class="w3-card-4 w3-cell">
+                    <div class="w3-container">
+                        <div id="sadness"></div>
+                    </div>
+                    <footer class="w3-container w3-center w3-blue">
+                        <h5>Sadness</h5>
+                    </footer>
+                </div>
+                <div class="w3-card-4 w3-cell">
+                    <div class="w3-container">
+                        <div id="disgust" class="gauge"></div>
+                    </div>
+                    <footer class="w3-container w3-center w3-purple">
+                        <h5>Disgust</h5>
+                    </footer>
+                </div>
+                <div class="w3-card-4 w3-cell">
+                    <div class="w3-container">
+                        <div id="anger"></div>
+                    </div>
+                    <footer class="w3-container w3-center w3-red">
+                        <h5>Anger</h5>
+                    </footer>
+                </div>
+
+            </div>
+
+        </div>
+        <div class="container">
+
+        </div>
+        <script src="chart.js?v=1"></script>
+        <script src="csv.js?v=1"></script>
+        <script src="capture.js?v=1"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function (event) {
+                /*
+                            var dflt = {
+                                min: 0,
+                                max: 100,
+                                donut: false,
+                                hideInnerShadow: true
+                            }
+                
+                            var gg1 = new JustGage({
+                                id: 'gg1',
+                                value: 125,
+                                title: 'javascript call',
+                                defaults: dflt
+                            });
+                
+                            var gg2 = new JustGage({
+                                id: 'gg2',
+                                title: 'data-attributes',
+                                defaults: dflt
+                            });
+                */
+            });
+        </script>
+
 
 </body>
 

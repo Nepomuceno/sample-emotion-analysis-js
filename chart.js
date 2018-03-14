@@ -105,3 +105,35 @@ var chart;
     });
     chart.render();
 })()
+
+var generateGauge  = function(value,id,name) {
+    value = Math.ceil(value * 100);
+    /*var g = new JustGage({
+        id: id,
+        value: value,
+        min: 0,
+        max: 100,
+        title: name
+    });*/
+    var chart = c3.generate({
+        bindto: '#' + id,
+        data: {
+            columns: [
+                [name, value]
+            ],
+            type: 'gauge',
+        },
+        gauge: {            
+        },
+        color: {
+            pattern: ['#FF0000', '#F97600', '#F6C600', '#60B044'],
+            threshold: {
+                values: [30, 60, 90, 100]
+            }
+        },
+        size: {
+            width: 170,
+            height: 120
+        }
+    });
+}

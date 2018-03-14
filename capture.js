@@ -173,6 +173,10 @@ window.sourceImageUrl = "";
       sentence = 'Crashes make you anger';
     }
     resultContainer.textContent = sentence;
+    generateGauge(happiness,'happiness',"Happiness");
+    generateGauge(sadness,'sadness',"Sadness");
+    generateGauge(disgust,'disgust',"Disgust");
+    generateGauge(anger,'anger',"Anger");
     console.log(sentence);
   }
 
